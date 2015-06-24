@@ -1,0 +1,73 @@
+.green {
+    -fx-background-color:
+        linear-gradient(#f0ff35, #a9ff00),
+        radial-gradient(center 50% -40%, radius 200%, #b8ee36 45%, #80c800 50%);
+    -fx-background-radius: 6, 5;
+    -fx-background-insets: 0, 1;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
+    -fx-text-fill: #395306;
+}
+
+.red {
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+.orange {
+    -fx-background-color: linear-gradient(#FFA500, #00AEFF);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+.green:hover {
+    -fx-background-color:
+        #909090,
+        #FFFFFF;
+}
+.red:hover {
+    -fx-background-color:
+        #909090;
+}
+//For the text field 
+.custom-text-field {
+    -fx-background-color:
+        #FFFFFF,
+        #FFFFFF;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 0, 0;
+ }
+
+.custom-text-field:focused {
+    -fx-background-color:
+        #0093EF,
+        #FFFFFF;
+}
+
+.custom-text-field:hover {
+    -fx-background-color:
+        #909090,
+        #FFFFFF;
+}
+
+.custom-text-field:focused:hover {
+    -fx-background-color:
+        #0093EF,
+        #FFFFFF;
+}
+.right-page-turn {
+  -fx-rotate: 3; 
+  -fx-translate-y: -2; 
+  -fx-background-insets: 20 10 15 80; 
+  -fx-effect: dropshadow(three-pass-box, grey, 10, 0, 0, 15);
+}
+
+.label {
+  -fx-text-fill: #0E77C2;
+}
+
+.label:hover {
+  -fx-text-fill: #0093EF;
+  -fx-font-style: italic;
+  -fx-cursor: hand;
+}
