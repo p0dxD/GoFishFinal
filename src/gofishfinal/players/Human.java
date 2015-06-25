@@ -45,6 +45,7 @@ public class Human extends Player{
 //        System.out.println("-----------------------------------------------");
 //        System.out.println("Sorted: "+testTwo.getHand());
 //        System.out.println("Sorted: "+testTwo.getHand().size());
+//        
 //    }
     
 }

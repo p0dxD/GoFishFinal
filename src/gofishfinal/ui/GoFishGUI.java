@@ -71,6 +71,8 @@ public class GoFishGUI {
     private Human human;
     private Computer computer;
     private ArrayList<Card> deck;
+    private ArrayList<ImageView> computerImageContainer = new ArrayList<ImageView>();
+    private ArrayList<ImageView> humanImageContainer = new ArrayList<ImageView>();
 
     /**
      * Default constructor size 770, 500
@@ -232,10 +234,11 @@ public class GoFishGUI {
 //            Image img = new Image(new File(cardsPath + deck.get(i).getImageName()).toURI().toString());
             Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
-
+            
             tets.translateYProperty().set(i * 6);
             tets.setFitWidth(70);
             tets.setFitHeight(90);
+            
             deckPane.getChildren().add(tets);
 
         }
@@ -243,20 +246,26 @@ public class GoFishGUI {
     }
 
     public void updateComputerDisplay() {
-
         computerPane.setAlignment(Pos.CENTER_LEFT);
         computerPane.setTranslateX(75);
         for (int i = 0; i < computer.getHand().size(); i++) {
-//            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
-            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
+            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
+//            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
             tets.translateXProperty().set(i*((width-(i*10))/((computer.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
-            computerPane.getChildren().add(tets);
+            tets.setId(computer.getHand().get(i).getRank());
+            computerImageContainer.add(tets);
 
+//R27587
+            computerPane.getChildren().add(tets);
         }
-        System.out.println(deck.size());
+        for(ImageView i: computerImageContainer){
+            i.setOnMouseClicked(e->{
+            System.out.println(i.getId());
+            });
+        }
     }
 
     public void updateHumanDisplay() {
@@ -267,12 +276,17 @@ public class GoFishGUI {
             Image img = new Image(new File(cardsPath + human.getHand().get(i).getImageName()).toURI().toString());
             ImageView tets = new ImageView(img);
             tets.translateXProperty().set(i*((width-(i*10))/((human.getHand().size()))));
-//            System.out.println(((width)/(human.getHand().size()*human.getHand().size()*human.getHand().size())));
-//            System.out.println((width));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
+            tets.setId(human.getHand().get(i).getRank());
+            humanImageContainer.add(tets);
             humanPane.getChildren().add(tets);
 
+        }
+        for(ImageView i: humanImageContainer){
+            i.setOnMouseClicked(e->{
+            System.out.println(i.getId());
+            });
         }
         System.out.println(deck.size());
     }

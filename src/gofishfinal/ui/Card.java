@@ -5,14 +5,20 @@
  */
 package gofishfinal.ui;
 
+import java.io.File;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+
 /**
  *
  * @author Joseph
  */
-public class Card {
+public class Card{
     public static int CARDS_MADE = 0;
     
-    private String imageName;
+//    private ImageView imageView;
+//    private String imageName;
     private String rank;
     private String suit;
     private boolean flipped;
@@ -48,15 +54,23 @@ public class Card {
     }
     public void flip(){
         flipped = !flipped;
+        
     }
     public boolean isFlipped(){
         return flipped;
     }
+//    public ImageView getImageView(){
+//        return  new ImageView(new Image(new File
+//        ("images/cards/"+getImageName()).toURI().toString()));
+//    }
     @Override
     public String toString(){
         return "Rank: "+getRank()+"\nSuit: "+getSuit()+
                 "\nFlipped: "+ isFlipped()+"\nImage call: "+getImageName();
     }
+    
+    
+
 //    public static void main(String[] args){
 //        Card test = new Card();
 //        System.out.println(test);
@@ -66,4 +80,6 @@ public class Card {
 //        System.out.println(testTwo);
 //        System.out.println("Cards we have: "+Card.CARDS_MADE);
 //    }
+
+
 }
