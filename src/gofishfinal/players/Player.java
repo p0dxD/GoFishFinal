@@ -20,6 +20,7 @@ public class Player {
     private String name;
     private HeapSort sort;
     private int score = 0;
+    private boolean isTurn;
 
     public Player() {
         this("");
@@ -152,6 +153,21 @@ public class Player {
             sortInstance = new HeapSort();
         }
         return sortInstance;
+    }
+
+    public boolean isIsTurn() {
+        return isTurn;
+    }
+    public void setIsTurn(boolean isTurn) {
+        this.isTurn  = isTurn;
+    }
+
+    public void endTurn() {
+        if(isTurn){
+        isTurn = !isTurn;
+        }else{
+            System.out.println("Not its turn");
+        }
     }
 
     /**

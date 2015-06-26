@@ -18,4 +18,7 @@ public class EventHandler {
     public void respondToSwitchScreenRequest(ScreenState state){
         ui.changeSpace(state);
     }
+    public void processPlayerMove(){
+        
+    }
 }

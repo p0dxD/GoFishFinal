@@ -11,9 +11,11 @@ import java.io.File;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -30,7 +32,6 @@ import javafx.scene.web.WebView;
 public class GoFishGUI {
 
     //size 
-
     private int width;
     private int height;
     //Panes
@@ -43,6 +44,7 @@ public class GoFishGUI {
     private StackPane deckPane;
     private StackPane humanPane;
     private StackPane computerPane;
+    private Pane centerGamePane;
     //buttons
     private Button about;
     private Button play;
@@ -73,6 +75,9 @@ public class GoFishGUI {
     private ArrayList<Card> deck;
     private ArrayList<ImageView> computerImageContainer = new ArrayList<ImageView>();
     private ArrayList<ImageView> humanImageContainer = new ArrayList<ImageView>();
+    //labels for game
+    private Label computerLabel;
+    private Label humanLabel;
 
     /**
      * Default constructor size 770, 500
@@ -186,20 +191,29 @@ public class GoFishGUI {
 
     public void initGame() {
         //players
-        human = new Human("",7);
+        human = new Human("", 7);
         computer = new Computer();
         //init pane and menu bar
         deckPane = new StackPane();
         humanPane = new StackPane();
         computerPane = new StackPane();
         mainGamePane = new BorderPane();
+        centerGamePane = new Pane();
         gamePane = new BorderPane();
+        computerLabel = new Label("Test with a bigger text that will take so much space");
+        humanLabel = new Label("Human");
         gameMenuBar = new MenuBar();
         returnToSplashScreen = new MenuItem("Return to splash screen");
         resetGame = new MenuItem("Reset");
         save = new MenuItem("Save");
         load = new MenuItem("Load");
         exit = new MenuItem("Exit");
+        //add to center game pane
+        computerLabel.setTranslateX(((width-100)/2)-(5*(computerLabel.getText().length()/2)));
+        computerLabel.setTranslateY(20);
+        humanLabel.setTranslateX(((width-100)/2)-(5*(humanLabel.getText().length()/2)));
+        humanLabel.setTranslateY(height-250);
+        centerGamePane.getChildren().addAll(computerLabel, humanLabel);
         //add it to the bar
         gameMenuBar.getMenus().add(gameMenu);
         gameMenu.getItems().addAll(returnToSplashScreen,
@@ -208,6 +222,7 @@ public class GoFishGUI {
         mainGamePane.setTop(computerPane);
         mainGamePane.setBottom(humanPane);
         mainGamePane.setLeft(deckPane);
+        mainGamePane.setCenter(centerGamePane);
         gamePane.setTop(gameMenuBar);
         gamePane.setCenter(mainGamePane);
         //menu actions
@@ -217,11 +232,11 @@ public class GoFishGUI {
         exit.setOnAction(e -> {
             eventHandler.respondToSwitchScreenRequest(ScreenState.EXIT_REQUEST);
         });
-        display();
+        updateDisplay();
         mainPane.setCenter(gamePane);
     }
 
-    public void display() {
+    public void updateDisplay() {
         updateDeckDisplay();
         updateComputerDisplay();
         updateHumanDisplay();
@@ -232,13 +247,13 @@ public class GoFishGUI {
         deckPane.setAlignment(Pos.TOP_CENTER);
         for (int i = 0; i < deck.size(); i++) {
 //            Image img = new Image(new File(cardsPath + deck.get(i).getImageName()).toURI().toString());
-            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
+            Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
-            
+
             tets.translateYProperty().set(i * 6);
             tets.setFitWidth(70);
             tets.setFitHeight(90);
-            
+
             deckPane.getChildren().add(tets);
 
         }
@@ -252,7 +267,7 @@ public class GoFishGUI {
             Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
 //            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
-            tets.translateXProperty().set(i*((width-(i*10))/((computer.getHand().size()))));
+            tets.translateXProperty().set(i * ((width - (i * 10)) / ((computer.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
             tets.setId(computer.getHand().get(i).getRank());
@@ -260,11 +275,6 @@ public class GoFishGUI {
 
 //R27587
             computerPane.getChildren().add(tets);
-        }
-        for(ImageView i: computerImageContainer){
-            i.setOnMouseClicked(e->{
-            System.out.println(i.getId());
-            });
         }
     }
 
@@ -275,20 +285,37 @@ public class GoFishGUI {
         for (int i = 0; i < human.getHand().size(); i++) {
             Image img = new Image(new File(cardsPath + human.getHand().get(i).getImageName()).toURI().toString());
             ImageView tets = new ImageView(img);
-            tets.translateXProperty().set(i*((width-(i*10))/((human.getHand().size()))));
+            tets.translateXProperty().set(i * ((width - (i * 10)) / ((human.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
+            Tooltip.install(tets, new Tooltip(human.getHand().get(i).getRank()));
             tets.setId(human.getHand().get(i).getRank());
             humanImageContainer.add(tets);
             humanPane.getChildren().add(tets);
-
-        }
-        for(ImageView i: humanImageContainer){
-            i.setOnMouseClicked(e->{
-            System.out.println(i.getId());
-            });
         }
         System.out.println(deck.size());
+//        if(!human.isIsTurn()){
+        human.setIsTurn(true);
+        allowPlayerClickableCards();/////////////////WORRKKKKKKKKKKKKK ZONEEEEEEEEEEEEEE
+//        }
+    }
+
+    public void allowPlayerClickableCards() {
+        if (human.isIsTurn()) {
+            for (ImageView i : humanImageContainer) {
+                i.setOnMouseClicked(e -> {
+                    System.out.println(i.getId());
+                    System.out.println(human.isIsTurn());
+                    human.endTurn();
+                    allowPlayerClickableCards();
+                });
+            }
+        } else {
+            System.out.println("Inside else allowPlayerClickableCards()");
+            for (ImageView i : humanImageContainer) {
+                i.setDisable(true);
+            }
+        }
     }
 
     /**
