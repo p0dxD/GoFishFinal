@@ -78,6 +78,10 @@ public class GoFishGUI {
     //labels for game
     private Label computerLabel;
     private Label humanLabel;
+    //human humanPick
+    private String humanPick;
+    private String computerPick;
+    private boolean humanClicked = false;
 
     /**
      * Default constructor size 770, 500
@@ -103,11 +107,11 @@ public class GoFishGUI {
      */
     public void inits() {
         System.out.println("Inside inits");
+        initHandlers();
         initMainPane();
         initSplashScreen();
         initAbout();
         initGame();
-        initHandlers();
 
         changeSpace(ScreenState.SPLASH_SCREEN);//start with splashscreen
     }
@@ -192,7 +196,7 @@ public class GoFishGUI {
     public void initGame() {
         //players
         human = new Human("", 7);
-        computer = new Computer();
+        computer = new Computer("", 7);
         //init pane and menu bar
         deckPane = new StackPane();
         humanPane = new StackPane();
@@ -209,10 +213,7 @@ public class GoFishGUI {
         load = new MenuItem("Load");
         exit = new MenuItem("Exit");
         //add to center game pane
-        computerLabel.setTranslateX(((width-100)/2)-(5*(computerLabel.getText().length()/2)));
-        computerLabel.setTranslateY(20);
-        humanLabel.setTranslateX(((width-100)/2)-(5*(humanLabel.getText().length()/2)));
-        humanLabel.setTranslateY(height-250);
+        updateLabelLocation();
         centerGamePane.getChildren().addAll(computerLabel, humanLabel);
         //add it to the bar
         gameMenuBar.getMenus().add(gameMenu);
@@ -236,6 +237,13 @@ public class GoFishGUI {
         mainPane.setCenter(gamePane);
     }
 
+    public void updateLabelLocation() {
+        computerLabel.setTranslateX(((width - 100) / 2) - (5 * (computerLabel.getText().length() / 2)));
+        computerLabel.setTranslateY(20);
+        humanLabel.setTranslateX(((width - 100) / 2) - (5 * (humanLabel.getText().length() / 2)));
+        humanLabel.setTranslateY(height - 250);
+    }
+
     public void updateDisplay() {
         updateDeckDisplay();
         updateComputerDisplay();
@@ -243,6 +251,7 @@ public class GoFishGUI {
     }
 
     public void updateDeckDisplay() {
+        deckPane.getChildren().clear();
         deck = Deck.getDeck();
         deckPane.setAlignment(Pos.TOP_CENTER);
         for (int i = 0; i < deck.size(); i++) {
@@ -261,6 +270,8 @@ public class GoFishGUI {
     }
 
     public void updateComputerDisplay() {
+        computerImageContainer.clear();
+        computerPane.getChildren().clear();
         computerPane.setAlignment(Pos.CENTER_LEFT);
         computerPane.setTranslateX(75);
         for (int i = 0; i < computer.getHand().size(); i++) {
@@ -279,7 +290,8 @@ public class GoFishGUI {
     }
 
     public void updateHumanDisplay() {
-
+        humanImageContainer.clear();
+        humanPane.getChildren().clear();
         humanPane.setAlignment(Pos.CENTER_LEFT);
         humanPane.setTranslateX(75);
         for (int i = 0; i < human.getHand().size(); i++) {
@@ -296,25 +308,108 @@ public class GoFishGUI {
         System.out.println(deck.size());
 //        if(!human.isIsTurn()){
         human.setIsTurn(true);
-        allowPlayerClickableCards();/////////////////WORRKKKKKKKKKKKKK ZONEEEEEEEEEEEEEE
+        eventHandler.gameLogic("human");
 //        }
     }
 
-    public void allowPlayerClickableCards() {
+    public void processPlayerMove() {
+        humanLabel.setText("Pick a Card");
+        updateLabelLocation();
         if (human.isIsTurn()) {
             for (ImageView i : humanImageContainer) {
                 i.setOnMouseClicked(e -> {
-                    System.out.println(i.getId());
+                    humanPick = i.getId();
+                    humanLabel.setText("You picked " + humanPick + " . Lets see if the computer has it.");
+                    updateLabelLocation();
+                    if (computer.contains(humanPick) > 0) {
+                        computerLabel.setText("I do have " + humanPick);
+                        updateLabelLocation();
+                        computer.removeFromHandAndHandToPlayer(humanPick, human);
+                        updateDisplay();
+                    } else {
+                        computerLabel.setText("I do not have " + humanPick + ". Go Fish!");
+                        updateLabelLocation();
+                        human.endTurn();
+                        processPlayerMove();
+                        deckPane.setDisable(false);
+                        deckPane.setOnMouseClicked(deck -> {
+                            human.getCardFromDeck();
+                            updateDisplay();
+                            human.endTurn();
+                            processPlayerMove();
+                            deckPane.setDisable(true);
+                            computer.setIsTurn(true);
+                            processComputerTurn();
+                            //here put the computer 
+                        });
+
+                    }
                     System.out.println(human.isIsTurn());
-                    human.endTurn();
-                    allowPlayerClickableCards();
                 });
             }
-        } else {
+        } else {//here we dissable the player from clicking the cards
             System.out.println("Inside else allowPlayerClickableCards()");
-            for (ImageView i : humanImageContainer) {
-                i.setDisable(true);
-            }
+            disableHumanCards(true);
+        }
+    }
+
+    public void processComputerTurn() {
+        System.out.println("Computer turn: " + computer.isIsTurn());
+        if (computer.isIsTurn()) {
+            computerPick = computer.makeMove();
+            computerLabel.setText("Do you have " + computerPick + "?");
+            humanLabel.setText("Click on the card if you have it. Else click center to make him go Fish.");
+            updateLabelLocation();
+            makeHumanCardsClickable();
+        }
+    }
+
+    public boolean makeHumanCardsClickable() {
+        disableHumanCards(false);
+        System.out.println("Inside make human clickable" + humanImageContainer.size());
+        for (ImageView i : humanImageContainer) {
+            i.setOnMouseClicked(e -> {
+                System.out.println(human.contains(computerPick) > 0);
+                if (i.getId().equals(computerPick) && human.contains(computerPick) > 0) {
+                    human.removeFromHandAndHandToPlayer(computerPick, computer);
+                    computerLabel.setText("Thank you.");
+                    updateLabelLocation();
+                    updateDisplay();
+                    //here add a delay
+                    processComputerTurn();
+                }else if(!(i.getId().equals(computerPick)) && human.contains(computerPick) < 0){
+                    computerLabel.setText("That's not it");
+                    updateLabelLocation();
+                }
+            });
+                centerGamePane.setDisable(false);
+                centerGamePane.setOnMouseClicked(ea -> {
+                if(human.contains(computerPick) < 0){//does not contain it
+                        computer.getCardFromDeck();
+                        computer.endTurn();
+                        updateDisplay();//THIS NEEDS FIX AROUND HERE
+                        human.setIsTurn(true);
+                        centerGamePane.setDisable(true);
+                        computerLabel.setText("Your Turn");
+                        updateLabelLocation();
+                        processPlayerMove();
+                    }else{
+                    computerLabel.setText("Check again");
+                    updateLabelLocation();
+                    
+                }
+                    });
+            
+        }
+
+        return humanClicked;
+    }
+    public void makeComputerGoFish(){
+        
+    }
+    public void disableHumanCards(boolean status) {
+        for (ImageView i : humanImageContainer) {
+            i.setDisable(status);
         }
     }
 
@@ -342,6 +437,10 @@ public class GoFishGUI {
                 System.exit(0);
                 break;
         }
+    }
+
+    public String getPick() {
+        return this.humanPick;
     }
 
     /**

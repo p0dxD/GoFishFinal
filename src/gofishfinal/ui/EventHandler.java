@@ -18,6 +18,14 @@ public class EventHandler {
     public void respondToSwitchScreenRequest(ScreenState state){
         ui.changeSpace(state);
     }
+    public void gameLogic(String whoseTurn){
+        if(whoseTurn.equals("human")){
+            ui.processPlayerMove();
+            
+        }else{
+            
+        }
+    }
     public void processPlayerMove(){
         
     }

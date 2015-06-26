@@ -48,6 +48,7 @@ public class Player {
 
     public void getCardFromDeck() {
         hand.add(hand.size(), instance.getCardFromDeck());
+        sortHand();
     }
 
     public void sortHand() {
@@ -110,14 +111,26 @@ public class Player {
     }
     public void removeFromHand(String card){
         ArrayList<Card> temp = new ArrayList<>();
-//        System.out.println("Inside removeFromHand: " + getHandSize() + " " + cardToRemove);
-//        int loops = getHandSize();
         for (Card cards : getHand()) {
             if (!cards.getRank().equals(card)) {
                 temp.add(cards);
             }
         }
         hand = temp;
+        System.out.println("Removed " + card);
+    }
+    public void removeFromHandAndHandToPlayer(String card,Player player){
+        ArrayList<Card> temp = new ArrayList<>();
+        for (Card cards : getHand()) {
+            if (!cards.getRank().equals(card)) {
+                temp.add(cards);
+            }else{
+                player.getHand().add(cards);
+            }
+        }
+        
+        hand = temp;
+        player.sortHand();
         System.out.println("Removed " + card);
     }
     public void addToHand(Card card){

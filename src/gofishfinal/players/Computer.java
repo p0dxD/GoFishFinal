@@ -13,6 +13,12 @@ import java.util.Random;
  */
 public class Computer extends Player{
     private static String pick = null;
+    public Computer(){
+        
+    }
+    public Computer(String name, int size){
+        super(name, size);
+    }
     /**
      * Checks if hand has the number
      * @return 
