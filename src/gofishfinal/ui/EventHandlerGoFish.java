@@ -9,10 +9,10 @@ package gofishfinal.ui;
  *
  * @author Joseph
  */
-public class EventHandler {
+public class EventHandlerGoFish {
     private GoFishGUI ui;
     
-    public EventHandler(GoFishGUI ui){
+    public EventHandlerGoFish(GoFishGUI ui){
         this.ui = ui;
     }
     public void respondToSwitchScreenRequest(ScreenState state){
@@ -23,7 +23,7 @@ public class EventHandler {
             ui.processPlayerMove();
             
         }else{
-            
+            ui.processComputerTurn();
         }
     }
     public void processPlayerMove(){

@@ -33,7 +33,7 @@ public class Computer extends Player{
         int ran;
         while(pick==null){
             ran = (int)(Math.random()*cardOptions.length-1);
-        if(super.contains(cardOptions[ran])>-1) {
+        if(super.contains(cardOptions[ran])) {
             pick = cardOptions[ran];
             }
         }

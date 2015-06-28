@@ -5,6 +5,18 @@ import gofishfinal.ui.Deck;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
+import javafx.scene.control.Tooltip;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 /**
  *
@@ -19,9 +31,12 @@ public class Player {
     private int handSize = 5;
     private String name;
     private HeapSort sort;
+    private String nameOfCardObtainedFromDeck = null;
     private int score = 0;
     private boolean isTurn;
-
+    private final Popup popup = new Popup();
+    private Timer timer = new Timer();
+    private boolean containsIt;
     public Player() {
         this("");
     }
@@ -47,10 +62,18 @@ public class Player {
     }
 
     public void getCardFromDeck() {
-        hand.add(hand.size(), instance.getCardFromDeck());
+        if(!instance.isEmpty()){
+        Card cardFromDeck = instance.getCardFromDeck();
+        nameOfCardObtainedFromDeck = cardFromDeck.getRank();
+        hand.add(cardFromDeck);
         sortHand();
+        }else{
+            System.out.println("Its empty now");
+        }
     }
-
+    public String getRankOfDeckCard(){
+        return nameOfCardObtainedFromDeck;
+    }
     public void sortHand() {
         sortInstance.sort(getHand());
     }
@@ -59,21 +82,28 @@ public class Player {
         score++;
     }
 
-    public int contains(String rank) {
-        int lo = 0;
-        int high = getHand().size() - 1;
-
-        while (high >= lo) {
-            int mid = (lo + high) / 2;
-            if (rank.compareTo(getHand().get(mid).getRank()) < 0) {
-                high = mid - 1;
-            } else if (rank.compareTo(getHand().get(mid).getRank()) > 0) {
-                lo = mid + 1;
-            } else {
-                return mid;
+    public boolean contains(String rank) {
+        containsIt = false;
+        for(Card card: this.getHand()){
+            if(card.getRank().equals(rank)){
+                containsIt = true;
             }
         }
-        return -1;
+        return containsIt;      
+//        int lo = 0;
+//        int high = getHand().size() - 1;
+//
+//        while (lo <= high) {
+//            int mid = lo + (high - lo) / 2;
+//            if (rank.compareTo(getHand().get(mid).getRank()) < 0) {
+//                high = mid - 1;
+//            } else if (rank.compareTo(getHand().get(mid).getRank()) > 0) {
+//                lo = mid + 1;
+//            } else {
+//                return true;
+//            }
+//        }
+//        return false;
 
     }
 
@@ -182,7 +212,52 @@ public class Player {
             System.out.println("Not its turn");
         }
     }
+//------------------------Experimental--------------------
+    public void showPopup(Stage stage,int width,int height){
+        final Circle circle = new Circle(50);
+        final Text text = createText(); 
+        circle.setStroke(Color.FORESTGREEN);
+        circle.setStrokeWidth(10);
+        circle.setStrokeType(StrokeType.INSIDE);
+        circle.setFill(Color.AZURE);
+        circle.relocate(0, 0);
+        Tooltip.install(circle, new Tooltip("Click here to dismiss"));
+        
+        popup.setX(width-25);
+        popup.setY(height+25/2);
+        popup.getContent().addAll(circle,text);
+        popup.show(stage);
+        circle.setOnMouseClicked(e->{
+            popup.hide();
+        });
+    }
+    private void centerText(Text text) {
+        double W = text.getBoundsInLocal().getWidth();
+        double H = text.getBoundsInLocal().getHeight();
+        text.relocate(50 -W / 2, 50 - H / 2);//150 is radius
+    }
+    private Text createText() {
+        final Text text = new Text(name);
+        text.setFont(new Font(30));
+        text.setBoundsType(TextBoundsType.VISUAL);
+        centerText(text);
+        return text;
+           
+    }
+        public void closePopup(){
+                timer.schedule(new TimerTask() {
 
+                    @Override
+                    public void run() {
+                        Platform.runLater(() -> {
+                        popup.hide();
+                        });
+                    }
+                    
+                },2000);
+                
+    }
+        //-----------------------------------------------------
     /**
      * @param args the command line arguments
      */

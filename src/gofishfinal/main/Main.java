@@ -20,7 +20,7 @@ public class Main extends Application {
     private int width = 700, height = 500;
     @Override
     public void start(Stage primaryStage) {
-        GoFishGUI gui = new GoFishGUI();
+        GoFishGUI gui = new GoFishGUI(primaryStage);
         BorderPane pane = gui.getMainPane();
         Scene scene = new Scene(pane,width,height);
         primaryStage.setTitle(title);

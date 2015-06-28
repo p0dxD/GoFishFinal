@@ -76,6 +76,9 @@ public class Deck {
     public int getDeckSize(){
         return deck.size();
     }
+    public boolean isEmpty(){
+        return deck.isEmpty();
+    }
     /**
      * @param args the command line arguments
      */

@@ -9,6 +9,9 @@ import gofishfinal.players.Computer;
 import gofishfinal.players.Human;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,18 +25,27 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 /**
  *
  * @author Joseph
  */
 public class GoFishGUI {
-
+    private Stage primaryStage;
     //size 
     private int width;
     private int height;
+    
     //Panes
     private BorderPane mainPane;
     private Pane splashScreenPane;
@@ -55,7 +67,7 @@ public class GoFishGUI {
     private WebView browser;
     private WebEngine webEngine;
     //for event handler
-    private EventHandler eventHandler;
+    private EventHandlerGoFish eventHandler;
     //for the images
     private ImageView splashImage;
     private String backgroundPath = "images/backgrounds/backgroundSplashOptional.gif";
@@ -83,13 +95,17 @@ public class GoFishGUI {
     private String computerPick;
     private boolean humanClicked = false;
 
+
     /**
      * Default constructor size 770, 500
      */
     public GoFishGUI() {
         this(700, 500);
     }
-
+    public GoFishGUI(Stage stage){
+        this(700,500);
+        setPrimaryStage(stage);
+    }
     /**
      * Constructor with specified sizes
      *
@@ -115,7 +131,9 @@ public class GoFishGUI {
 
         changeSpace(ScreenState.SPLASH_SCREEN);//start with splashscreen
     }
-
+    public void setPrimaryStage(Stage primaryStage){
+        this.primaryStage = primaryStage;
+    }
     /**
      * Inits the initial stage
      */
@@ -128,7 +146,7 @@ public class GoFishGUI {
 
     public void initHandlers() {
         System.out.println("Inside initHandlers");
-        eventHandler = new EventHandler(this);
+        eventHandler = new EventHandlerGoFish(this);
     }
 
     /**
@@ -195,8 +213,8 @@ public class GoFishGUI {
 
     public void initGame() {
         //players
-        human = new Human("", 7);
-        computer = new Computer("", 7);
+        human = new Human("HUMAN", 7);
+        computer = new Computer("COMPUTER", 7);
         //init pane and menu bar
         deckPane = new StackPane();
         humanPane = new StackPane();
@@ -204,7 +222,7 @@ public class GoFishGUI {
         mainGamePane = new BorderPane();
         centerGamePane = new Pane();
         gamePane = new BorderPane();
-        computerLabel = new Label("Test with a bigger text that will take so much space");
+        computerLabel = new Label("Player starts first!");
         humanLabel = new Label("Human");
         gameMenuBar = new MenuBar();
         returnToSplashScreen = new MenuItem("Return to splash screen");
@@ -234,6 +252,7 @@ public class GoFishGUI {
             eventHandler.respondToSwitchScreenRequest(ScreenState.EXIT_REQUEST);
         });
         updateDisplay();
+        eventHandler.gameLogic("human");
         mainPane.setCenter(gamePane);
     }
 
@@ -270,13 +289,13 @@ public class GoFishGUI {
     }
 
     public void updateComputerDisplay() {
-        computerImageContainer.clear();
         computerPane.getChildren().clear();
+        computerImageContainer.clear();
         computerPane.setAlignment(Pos.CENTER_LEFT);
         computerPane.setTranslateX(75);
         for (int i = 0; i < computer.getHand().size(); i++) {
-            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
-//            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
+//            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
+            Image img = new Image(new File(cardsPath +"back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
             tets.translateXProperty().set(i * ((width - (i * 10)) / ((computer.getHand().size()))));
             tets.setFitWidth(70);
@@ -290,8 +309,9 @@ public class GoFishGUI {
     }
 
     public void updateHumanDisplay() {
-        humanImageContainer.clear();
         humanPane.getChildren().clear();
+        humanImageContainer.clear();
+        
         humanPane.setAlignment(Pos.CENTER_LEFT);
         humanPane.setTranslateX(75);
         for (int i = 0; i < human.getHand().size(); i++) {
@@ -300,19 +320,16 @@ public class GoFishGUI {
             tets.translateXProperty().set(i * ((width - (i * 10)) / ((human.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
-            Tooltip.install(tets, new Tooltip(human.getHand().get(i).getRank()));
+            Tooltip.install(tets, new Tooltip("Pick "+human.getHand().get(i).getRank()));
             tets.setId(human.getHand().get(i).getRank());
-            humanImageContainer.add(tets);
             humanPane.getChildren().add(tets);
+            System.out.print(tets.getId()+" ");
+            humanImageContainer.add(tets);
         }
-        System.out.println(deck.size());
-//        if(!human.isIsTurn()){
-        human.setIsTurn(true);
-        eventHandler.gameLogic("human");
-//        }
     }
 
     public void processPlayerMove() {
+        human.setIsTurn(true);
         humanLabel.setText("Pick a Card");
         updateLabelLocation();
         if (human.isIsTurn()) {
@@ -321,28 +338,48 @@ public class GoFishGUI {
                     humanPick = i.getId();
                     humanLabel.setText("You picked " + humanPick + " . Lets see if the computer has it.");
                     updateLabelLocation();
-                    if (computer.contains(humanPick) > 0) {
+                    if (computer.contains(humanPick)) {
                         computerLabel.setText("I do have " + humanPick);
                         updateLabelLocation();
                         computer.removeFromHandAndHandToPlayer(humanPick, human);
+                        if(human.hasMatchingFour()){
+                            //chekc if player has 4+increaes score
+                            System.out.println("Inside has 4 matching human score: " + human.getScore());
+                            human.showPopup(primaryStage, width, height);
+                             human.closePopup();
+                        }   
                         updateDisplay();
+                        processPlayerMove();
                     } else {
                         computerLabel.setText("I do not have " + humanPick + ". Go Fish!");
                         updateLabelLocation();
                         human.endTurn();
                         processPlayerMove();
+                        System.out.println("It does go through it");
                         deckPane.setDisable(false);
+                            //IF FOR THE DECK PART ONCE HE HAS TO CLICK ON IT
                         deckPane.setOnMouseClicked(deck -> {
-                            human.getCardFromDeck();
+                            human.getCardFromDeck();//gets card from deck
+                        if(human.hasMatchingFour()){
+                            //chekc if player has 4+increaes score
+                            System.out.println("Inside has 4 matching human score: " + human.getScore());
+                            human.showPopup(primaryStage, width, height);
+                            human.closePopup();
+                        }   
+                            if(human.getRankOfDeckCard().equals(humanPick)){
+                                updateDisplay();
+                                deckPane.setDisable(true);
+                                processPlayerMove();
+                            }else{
                             updateDisplay();
                             human.endTurn();
                             processPlayerMove();
                             deckPane.setDisable(true);
                             computer.setIsTurn(true);
                             processComputerTurn();
+                            }
                             //here put the computer 
                         });
-
                     }
                     System.out.println(human.isIsTurn());
                 });
@@ -354,6 +391,7 @@ public class GoFishGUI {
     }
 
     public void processComputerTurn() {
+        computer.setIsTurn(true);
         System.out.println("Computer turn: " + computer.isIsTurn());
         if (computer.isIsTurn()) {
             computerPick = computer.makeMove();
@@ -363,50 +401,69 @@ public class GoFishGUI {
             makeHumanCardsClickable();
         }
     }
-
+    
     public boolean makeHumanCardsClickable() {
         disableHumanCards(false);
         System.out.println("Inside make human clickable" + humanImageContainer.size());
         for (ImageView i : humanImageContainer) {
             i.setOnMouseClicked(e -> {
-                System.out.println(human.contains(computerPick) > 0);
-                if (i.getId().equals(computerPick) && human.contains(computerPick) > 0) {
+                System.out.println((human.contains(computerPick)) + " " +i.getId()+" "+computerPick);
+                if (i.getId().equals(computerPick) && human.contains(computerPick)) {
                     human.removeFromHandAndHandToPlayer(computerPick, computer);
                     computerLabel.setText("Thank you.");
                     updateLabelLocation();
+                        if(computer.hasMatchingFour()){
+                            //chekc if player has 4+increaes score
+                            System.out.println("Inside has 4 matching computer score: " + computer.getScore());
+                            computer.showPopup(primaryStage, width, height);
+                            computer.closePopup();
+                        }                      
                     updateDisplay();
                     //here add a delay
                     processComputerTurn();
-                }else if(!(i.getId().equals(computerPick)) && human.contains(computerPick) < 0){
-                    computerLabel.setText("That's not it");
+                }else if(!(i.getId().equals(computerPick)) && !human.contains(computerPick)){
+                    computerLabel.setText("That's not it. "+"Do you have " + computerPick + "?");
                     updateLabelLocation();
                 }
             });
-                centerGamePane.setDisable(false);
                 centerGamePane.setOnMouseClicked(ea -> {
-                if(human.contains(computerPick) < 0){//does not contain it
+                if(!human.contains(computerPick)&&computer.isIsTurn()){//does not contain it
                         computer.getCardFromDeck();
+                        computer.hasMatchingFour();
+                        if(computer.getRankOfDeckCard().equals(computerPick)){
+                            if(computer.hasMatchingFour()){
+                            //chekc if player has 4+increaes score
+                            System.out.println("Inside has 4 matching computer score: " + computer.getScore());
+                            computer.showPopup(primaryStage, width, height);
+                            computer.closePopup();
+                        }  
+                            updateDisplay();
+                            processComputerTurn();
+                        }else{
                         computer.endTurn();
-                        updateDisplay();//THIS NEEDS FIX AROUND HERE
+                        updateDisplay();
                         human.setIsTurn(true);
-                        centerGamePane.setDisable(true);
                         computerLabel.setText("Your Turn");
                         updateLabelLocation();
                         processPlayerMove();
+                        }
                     }else{
-                    computerLabel.setText("Check again");
+                    if(computer.isIsTurn()){
+                            computerLabel.setText("Do you have " + computerPick + "?");
+                        
+                    }else{
+                    computerLabel.setText("Try again");
                     updateLabelLocation();
+                    }
                     
                 }
-                    });
-            
+            });
+                
         }
 
         return humanClicked;
     }
-    public void makeComputerGoFish(){
-        
-    }
+
     public void disableHumanCards(boolean status) {
         for (ImageView i : humanImageContainer) {
             i.setDisable(status);
