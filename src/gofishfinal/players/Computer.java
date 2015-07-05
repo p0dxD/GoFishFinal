@@ -5,8 +5,6 @@
  */
 package gofishfinal.players;
 
-import java.util.Random;
-
 /**
  *
  * @author Joseph
@@ -26,18 +24,8 @@ public class Computer extends Player{
     public String makeMove(){
         //(char)('a' + Math.random() * ('z'-'a' + 1)
         //char from a -z randomly
-        pick = null;
-        String[] cardOptions = {"A", "2", "3", "4", "5",
-            "6", "7", "8", "9", "10", "J", "Q", "K"};
-        
-        int ran;
-        while(pick==null){
-            ran = (int)(Math.random()*cardOptions.length-1);
-        if(super.contains(cardOptions[ran])) {
-            pick = cardOptions[ran];
-            }
-        }
-        return pick;
+
+        return super.getHand().get((int)(Math.random()*super.getHand().size())).getRank();
     }
 //    /**
 //     * @param args the command line arguments

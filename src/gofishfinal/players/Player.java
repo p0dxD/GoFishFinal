@@ -223,8 +223,8 @@ public class Player {
         circle.relocate(0, 0);
         Tooltip.install(circle, new Tooltip("Click here to dismiss"));
         
-        popup.setX(width-25);
-        popup.setY(height+25/2);
+        popup.setX(width-50);
+        popup.setY((height+90)/2);
         popup.getContent().addAll(circle,text);
         popup.show(stage);
         circle.setOnMouseClicked(e->{
@@ -237,8 +237,8 @@ public class Player {
         text.relocate(50 -W / 2, 50 - H / 2);//150 is radius
     }
     private Text createText() {
-        final Text text = new Text(name);
-        text.setFont(new Font(30));
+        final Text text = new Text(name+"\n Scored");
+        text.setFont(new Font(12));
         text.setBoundsType(TextBoundsType.VISUAL);
         centerText(text);
         return text;

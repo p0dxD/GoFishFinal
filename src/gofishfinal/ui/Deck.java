@@ -79,6 +79,14 @@ public class Deck {
     public boolean isEmpty(){
         return deck.isEmpty();
     }
+    
+//    public Deck getInstance() {
+//        if (instance == null) {
+//            instance = new Deck();
+//            Deck.DECKS_MADE++;
+//        }
+//        return instance;
+//    }
     /**
      * @param args the command line arguments
      */

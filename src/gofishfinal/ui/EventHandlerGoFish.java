@@ -20,6 +20,7 @@ public class EventHandlerGoFish {
     }
     public void gameLogic(String whoseTurn){
         if(whoseTurn.equals("human")){
+            ui.getHuman().setIsTurn(true);
             ui.processPlayerMove();
             
         }else{
