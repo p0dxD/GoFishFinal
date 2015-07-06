@@ -18,16 +18,15 @@ public class EventHandlerGoFish {
     public void respondToSwitchScreenRequest(ScreenState state){
         ui.changeSpace(state);
     }
-    public void gameLogic(String whoseTurn){
+    public void whoStarts(String whoseTurn){
         if(whoseTurn.equals("human")){
             ui.getHuman().setIsTurn(true);
             ui.processPlayerMove();
             
         }else{
+            ui.getComputer().setIsTurn(true);
             ui.processComputerTurn();
         }
     }
-    public void processPlayerMove(){
-        
-    }
+    
 }

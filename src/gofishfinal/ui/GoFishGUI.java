@@ -10,6 +10,8 @@ import gofishfinal.players.Human;
 import java.io.File;
 import java.util.ArrayList;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,6 +19,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,10 +29,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 /**
@@ -46,6 +53,7 @@ public class GoFishGUI {
     private Pane splashScreenPane;
     private BorderPane aboutPane;
     private HBox topAbout;
+    private BorderPane playerSelectionPane;
     private BorderPane gamePane;
     private BorderPane mainGamePane;
     private StackPane deckPane;
@@ -56,11 +64,18 @@ public class GoFishGUI {
     private Button about;
     private Button play;
     private Button quit;
+    private Button goButton;//getplayer
     private Button aboutBack;
     //sources for about
-    private String aboutSource = "data/about.html";
+    private String aboutSource = "data/html/about.html";
     private WebView browser;
     private WebEngine webEngine;
+    //sources for selection
+    private RadioButton playerRadioButton;
+    private RadioButton computerRadioButton;
+    private RadioButton randomRadioButton;
+    final ToggleGroup group = new ToggleGroup();
+    private Text playerSelectText;
     //for event handler
     private EventHandlerGoFish eventHandler;
     //for the images
@@ -89,6 +104,15 @@ public class GoFishGUI {
     private String humanPick;
     private String computerPick;
     private boolean humanClicked = false;
+    //for the stage of winning 
+    private Stage winStage;
+    private StackPane winPane;
+    private Text winningText;
+    private Text scoreText;
+    private Text score;
+    private ImageView trophy;
+    private String trophyPath = "images/win/";
+    private Scene winScene;
 
     /**
      * Default constructor size 770, 500
@@ -123,6 +147,7 @@ public class GoFishGUI {
         initMainPane();
         initSplashScreen();
         initAbout();
+        initPlayerSelection();
         initGame();
 
         changeSpace(ScreenState.SPLASH_SCREEN);//start with splashscreen
@@ -176,14 +201,76 @@ public class GoFishGUI {
             eventHandler.respondToSwitchScreenRequest(ScreenState.ABOUT_SCREEN);
         });
         play.setOnMouseClicked(e -> {//for play
-            eventHandler.respondToSwitchScreenRequest(ScreenState.GAME_SCREEN);
+            eventHandler.respondToSwitchScreenRequest(ScreenState.PLAYER_SELECT);
         });
         quit.setOnMouseClicked(e -> {//for quit
             eventHandler.respondToSwitchScreenRequest(ScreenState.EXIT_REQUEST);
         });
         mainPane.setCenter(splashScreenPane);//put in in main pane
     }//end initSplashScreen
+    
 
+    public void initPlayerSelection() {
+        playerSelectionPane = new BorderPane();
+        goButton = new Button("Start");
+        playerSelectionPane.getStyleClass().add("border-pane");
+        playerSelectText = new Text("Select\n who\nshould\n start\n  first");
+        playerRadioButton = new RadioButton("I want to start");
+        computerRadioButton = new RadioButton("Computer");
+        randomRadioButton = new RadioButton("Start randomly");
+        playerSelectText.setId("select-player-text");
+        goButton.setId("green");
+        playerSelectText.setFill(Color.CORNFLOWERBLUE);
+        //set images
+        ImageView humanImage = new ImageView(new Image(new File("images/radio/human.png").toURI().toString()));
+        ImageView computerImage = new ImageView(new Image(new File("images/radio/computer.png").toURI().toString()));
+        ImageView randomImage = new ImageView(new Image(new File("images/radio/random.png").toURI().toString()));
+        humanImage.setFitHeight(60);
+        humanImage.setFitWidth(60);
+        computerImage.setFitHeight(60);
+        computerImage.setFitWidth(60);
+        randomImage.setFitHeight(60);
+        randomImage.setFitWidth(60);
+        playerRadioButton.setGraphic(humanImage);
+        computerRadioButton.setGraphic(computerImage);
+        randomRadioButton.setGraphic(randomImage);
+        playerRadioButton.setToggleGroup(group);
+        computerRadioButton.setToggleGroup(group);
+        randomRadioButton.setToggleGroup(group);
+        playerSelectionPane.setTop(computerRadioButton);
+        playerSelectionPane.setCenter(playerRadioButton);
+        playerSelectionPane.setBottom(randomRadioButton);
+        //Stack for button
+        playerSelectionPane.setRight(goButton);
+
+        //select player 
+        playerRadioButton.setSelected(true);
+        playerRadioButton.requestFocus();
+        //set user data for buttons
+        playerRadioButton.setUserData("human");
+        computerRadioButton.setUserData("computer");
+        randomRadioButton.setUserData("random");
+        //we color the child in each of the sides of the borderpane
+        playerSelectionPane.setLeft(new StackPane(playerSelectText));
+        playerSelectionPane.getTop().setId("computer-select");
+        playerSelectionPane.getCenter().setId("player-select");
+        playerSelectionPane.getBottom().setId("random-select");
+        playerSelectionPane.getLeft().setId("text-select");
+        playerSelectionPane.getRight().setId("text-select");
+        BorderPane.setAlignment(playerRadioButton, Pos.CENTER);
+        BorderPane.setAlignment(computerRadioButton, Pos.CENTER);
+        BorderPane.setAlignment(randomRadioButton, Pos.CENTER);
+        BorderPane.setAlignment(playerSelectText, Pos.CENTER);
+        BorderPane.setAlignment(goButton, Pos.CENTER);
+        //give action to the buttons
+        System.out.println(group.getSelectedToggle().getUserData().toString());
+        goButton.setOnMouseClicked(e->{
+            System.out.println(group.getSelectedToggle().getUserData().toString() + " starts");
+            eventHandler.whoStarts(group.getSelectedToggle().getUserData().toString());//TODO WHO STARTS?
+            eventHandler.respondToSwitchScreenRequest(ScreenState.GAME_SCREEN);
+        });
+        mainPane.setCenter(playerSelectionPane);
+    }
     /**
      * Inits the
      */
@@ -231,6 +318,10 @@ public class GoFishGUI {
         //add to center game pane
         updateLabelLocation();
         centerGamePane.getChildren().addAll(computerLabel, humanLabel);
+        //put the background and colors
+        centerGamePane.setId("center-game-pane");
+        humanPane.setId("player-pane");
+        computerPane.setId("computer-pane");
         //add it to the bar
         gameMenuBar.getMenus().add(gameMenu);
         gameMenu.getItems().addAll(returnToSplashScreen,
@@ -250,15 +341,14 @@ public class GoFishGUI {
             eventHandler.respondToSwitchScreenRequest(ScreenState.EXIT_REQUEST);
         });
         updateDisplay();
-        eventHandler.gameLogic("human");
         mainPane.setCenter(gamePane);
     }
-
+//--------------------Elements of display----------------------------------------
     public void updateLabelLocation() {
         computerLabel.setTranslateX(((width - 100) / 2) - (5 * (computerLabel.getText().length() / 2)));
-        computerLabel.setTranslateY(20);
+        computerLabel.setTranslateY(40);
         humanLabel.setTranslateX(((width - 100) / 2) - (5 * (humanLabel.getText().length() / 2)));
-        humanLabel.setTranslateY(height - 250);
+        humanLabel.setTranslateY(height - 260);
     }
 
     public void updateDisplay() {
@@ -272,8 +362,8 @@ public class GoFishGUI {
         deck = Deck.getDeck();
         deckPane.setAlignment(Pos.TOP_CENTER);
         for (int i = 0; i < deck.size(); i++) {
-            Image img = new Image(new File(cardsPath + deck.get(i).getImageName()).toURI().toString());
-//            Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
+//            Image img = new Image(new File(cardsPath + deck.get(i).getImageName()).toURI().toString());
+            Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
 
             tets.translateYProperty().set(i * 6);
@@ -292,8 +382,8 @@ public class GoFishGUI {
         computerPane.setAlignment(Pos.CENTER_LEFT);
         computerPane.setTranslateX(75);
         for (int i = 0; i < computer.getHand().size(); i++) {
-            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
-//            Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
+//            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
+            Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
             tets.translateXProperty().set(i * ((width - (i * 10)) / ((computer.getHand().size()))));
             tets.setFitWidth(70);
@@ -325,12 +415,37 @@ public class GoFishGUI {
             humanImageContainer.add(tets);
         }
     }
-
+    /**
+     * This method should be used in case the hand of the player or cmputer
+     * becomes empty In that case we should fill it up with the starting amount
+     * and continue normal
+     *
+     * @param player to fill with cards
+     */
+    public void fillHand(gofishfinal.players.Player player) {
+        System.out.println("--------------inside fillHand------------");
+        if (!deck.isEmpty()) {
+            if (deck.size() >= 7) {
+                for (int i = 0; i < 7; i++) {
+                    player.getCardFromDeck();
+                }
+            } else {
+                while (!deck.isEmpty()) {
+                    player.getCardFromDeck();
+                }
+            }
+        } else {
+            System.out.println("The deck is empty");
+            //TODO Add that it shows for player or computer that they ran out of cards
+        }
+    }
+//-----------------------------------end elements of display------------------------
+//-------------------------player and computer logic--------------------------------
     public void processPlayerMove() {
 //        human.setIsTurn(true);
-        if(!isGameOver()){
-        humanLabel.setText("Pick a Card");
-        updateLabelLocation();
+        if (!isGameOver()) {
+            humanLabel.setText("Pick a Card");
+            updateLabelLocation();
 
             for (ImageView i : humanImageContainer) {
                 i.setOnMouseClicked(e -> {
@@ -340,17 +455,17 @@ public class GoFishGUI {
                     if (computer.contains(humanPick)) {
                         computerLabel.setText("I do have " + humanPick);
                         updateLabelLocation();
-                        
+
                         computer.removeFromHandAndHandToPlayer(humanPick, human);
-                            //CHECK IF COMPUTER HAS ENOUGH CARDS IF NOT FILL IT UP
+                        //CHECK IF COMPUTER HAS ENOUGH CARDS IF NOT FILL IT UP
                         if (computer.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
                             fillHand(computer);
                         }
                         if (human.hasMatchingFour()) {
                             //chekc if player has 4+increaes score
                             System.out.println("Inside has 4 matching human score: " + human.getScore());
-                            human.showPopup(primaryStage, width, height);
-                            human.closePopup();
+//                            human.showPopup(primaryStage, width, height);
+//                            human.closePopup();
                             //CHECK IF player HAS ENOUGH CARDS IF NOT FILL IT UP
                             if (human.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
                                 fillHand(human);
@@ -371,15 +486,15 @@ public class GoFishGUI {
                             human.getCardFromDeck();//gets card from deck
                             if (human.hasMatchingFour()) {
 //                                chekc if player has 4+increaes score
-                            //CHECK IF player HAS ENOUGH CARDS IF NOT FILL IT UP
+                                //CHECK IF player HAS ENOUGH CARDS IF NOT FILL IT UP
                                 if (human.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
                                     fillHand(human);
                                 }
                                 System.out.println("Inside has 4 matching human score: " + human.getScore());
-                                human.showPopup(primaryStage, width, height);
-                                human.closePopup();
+//                                human.showPopup(primaryStage, width, height);
+//                                human.closePopup();
                             }
-                            System.out.println(human.getRankOfDeckCard().equals(humanPick)+" Human pick : "+ humanPick+" rank from deck "+human.getRankOfDeckCard());
+                            System.out.println(human.getRankOfDeckCard().equals(humanPick) + " Human pick : " + humanPick + " rank from deck " + human.getRankOfDeckCard());
                             if (human.getRankOfDeckCard().equals(humanPick)) {
                                 updateDisplay();
                                 deckPane.setDisable(true);
@@ -401,44 +516,19 @@ public class GoFishGUI {
         }
     }
 
-    /**
-     * This method should be used in case the hand of the player or cmputer
-     * becomes empty In that case we should fill it up with the starting amount
-     * and continue normal
-     *
-     * @param player to fill with cards
-     */
-    public void fillHand(gofishfinal.players.Player player) {
-        System.out.println("--------------inside fillHand------------");
-        if (!deck.isEmpty()) {
-            if (deck.size() >= 7) {
-                for (int i = 0; i < 7; i++) {
-                    player.getCardFromDeck();
-                }
-            } else {
-                while(!deck.isEmpty()){
-                    player.getCardFromDeck();
-                }
-            }
-        } else {
-            System.out.println("The deck is empty");
-            //TODO Add that it shows for player or computer that they ran out of cards
-        }
-    }
-
     public void processComputerTurn() {
         computer.setIsTurn(true);
         System.out.println("Computer turn: " + computer.isIsTurn());
-        if (computer.isIsTurn()&&!isGameOver()) {
+        if (computer.isIsTurn() && !isGameOver()) {
             computerPick = computer.makeMove();
-            System.out.println("Inside processcomputer after computer turn: and computer pick is "+computerPick );
+            System.out.println("Inside processcomputer after computer turn: and computer pick is " + computerPick);
             computerLabel.setText("Do you have " + computerPick + "?");
             humanLabel.setText("Click on the card if you have it. Else click center to make him go Fish.");
             updateLabelLocation();
             computerHelper();
         }
     }
-    
+
     private boolean computerHelper() {
         disableHumanCards(false);
         System.out.println("Inside make human clickable" + humanImageContainer.size());
@@ -447,10 +537,10 @@ public class GoFishGUI {
                 System.out.println((human.contains(computerPick)) + " " + i.getId() + " " + computerPick);
                 if (i.getId().equals(computerPick) && human.contains(computerPick)) {
                     human.removeFromHandAndHandToPlayer(computerPick, computer);
-                            //CHECK IF HUMAN HAS ENOUGH CARDS IF NOT FILL IT UP
-                        if (human.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
-                            fillHand(human);
-                        }                    
+                    //CHECK IF HUMAN HAS ENOUGH CARDS IF NOT FILL IT UP
+                    if (human.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
+                        fillHand(human);
+                    }
                     computerLabel.setText("Thank you.");
                     updateLabelLocation();
                     if (computer.hasMatchingFour()) {
@@ -459,8 +549,8 @@ public class GoFishGUI {
                             fillHand(computer);
                         }
                         System.out.println("Inside has 4 matching computer score: " + computer.getScore());
-                        computer.showPopup(primaryStage, width, height);
-                        computer.closePopup();
+//                        computer.showPopup(primaryStage, width, height);
+//                        computer.closePopup();
                     }
                     updateDisplay();
                     //here add a delay
@@ -475,15 +565,15 @@ public class GoFishGUI {
                 if (!human.contains(computerPick) && computer.isIsTurn()) {//does not contain it
                     computer.getCardFromDeck();
 //                    computer.hasMatchingFour();
-                        if (computer.hasMatchingFour()) {
-                            if (computer.getRankOfDeckCard().equals(computerPick)) {//TODO problem here
+                    if (computer.hasMatchingFour()) {
+                        if (computer.getRankOfDeckCard().equals(computerPick)) {//TODO problem here
                             //chekc if player has 4+increaes score
                             if (computer.getHand().isEmpty()) {//if the hand of the player becomes empty we will it with initial amount(his turn again)
                                 fillHand(computer);
                             }
                             System.out.println("Inside has 4 matching computer score: " + computer.getScore());
-                            computer.showPopup(primaryStage, width, height);
-                            computer.closePopup();
+//                            computer.showPopup(primaryStage, width, height);
+//                            computer.closePopup();
                         }
                         updateDisplay();
                         processComputerTurn();
@@ -517,36 +607,78 @@ public class GoFishGUI {
             i.setDisable(status);
         }
     }
-    public gofishfinal.players.Player getHuman(){
+
+    public gofishfinal.players.Player getHuman() {
         return human;
     }
-    public gofishfinal.players.Player getComputer(){
+
+    public gofishfinal.players.Player getComputer() {
         return computer;
     }
-    public boolean isGameOver(){
-        if(deck.isEmpty()&&human.getHand().isEmpty()&&computer.getHand().isEmpty()){
+
+    public boolean isGameOver() {
+        if (deck.isEmpty() && human.getHand().isEmpty() && computer.getHand().isEmpty()) {
             System.out.println("Game Over");
             centerGamePane.getChildren().clear();
             displayWinMessage();
             return true;
-        }else{
+        } else {
             System.out.println("Not over yet");
             return false;
         }
     }
+//------------------------------end player and computer logic---------------------------
+//------------------------------Winning message display---------------------------------
+
     /**
      * Stage to display the winning message
      */
-    public void displayWinMessage(){
-        Stage stage = new Stage();
-        Pane pane = new Pane();
-        Text wintText = new Text("You win");
-        pane.getChildren().add(wintText);
-        Scene winScene = new Scene(pane,300,200);
-        stage.setScene(winScene);
-        stage.setTitle("Congratulations");
-        stage.show();
+    public void displayWinMessage() {
+        winStage = new Stage();
+        winPane = new StackPane();
+        winPane.getStyleClass().add("stack-pane");
+        winPane.setId("win-stack");
+        if (human.compareTo(computer) > 0) {
+            displayWinLoseMessagehelper(winPane, "You Win", false);
+            winStage.setTitle("Congratulations");
+        } else if (human.compareTo(computer) < 0) {
+            displayWinLoseMessagehelper(winPane, "You Lost", true);
+            winStage.setTitle("You lost");
+        } else {
+            displayWinLoseMessagehelper(winPane, "Draw", true);
+            winStage.setTitle("It is a draw!");
+        }
+        winScene = new Scene(winPane, 200, 200);
+        winScene.getStylesheets().add(new File("data/goFishStyle.css").toURI().toString());
+        winStage.initStyle(StageStyle.TRANSPARENT);
+        winStage.setScene(winScene);
+        winStage.show();
+        winScene.setOnMouseClicked(e->{winStage.close();});
     }
+
+    private void displayWinLoseMessagehelper(StackPane pane, String message, boolean lost) {
+        winningText = new Text(message);
+        scoreText = new Text("\n\n\nScore:");
+        score = new Text("\n\n\n\n\n"+human.getScore()+"-"+computer.getScore());
+        winningText.setId("text-win");
+        scoreText.setId("score-win");
+        score.setId("score");
+        winningText.setFill(Color.LAWNGREEN);
+        scoreText.setFill(Color.CHOCOLATE);
+        score.setFill(Color.NAVY);
+        //image of trophy
+        if (lost) {
+            trophy = new ImageView(new Image(new File(trophyPath + "smiley_sad.gif").toURI().toString()));
+        } else {
+            trophy = new ImageView(new Image(new File(trophyPath + "trophy.gif").toURI().toString()));
+        }
+        trophy.setFitHeight(60);
+        trophy.setFitWidth(60);
+        trophy.setTranslateY(40);
+        pane.getChildren().addAll(winningText, trophy, scoreText,score);
+    }
+//----------------------------End winning message display-------------------------------------
+
     /**
      * Handles the screen changes
      *
@@ -562,6 +694,10 @@ public class GoFishGUI {
             case ABOUT_SCREEN:
                 mainPane.getChildren().clear();
                 mainPane.setCenter(aboutPane);
+                break;
+            case PLAYER_SELECT:
+                mainPane.getChildren().clear();
+                mainPane.setCenter(playerSelectionPane);
                 break;
             case GAME_SCREEN:
                 mainPane.getChildren().clear();

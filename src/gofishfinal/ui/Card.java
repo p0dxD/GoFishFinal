@@ -5,20 +5,15 @@
  */
 package gofishfinal.ui;
 
-import java.io.File;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import java.io.Serializable;
 
 
 /**
  *
  * @author Joseph
  */
-public class Card{
+public class Card implements Serializable{
     public static int CARDS_MADE = 0;
-    
-//    private ImageView imageView;
-//    private String imageName;
     private String rank;
     private String suit;
     private boolean flipped;

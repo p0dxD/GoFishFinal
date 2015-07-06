@@ -1,0 +1,93 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jul 5, 2015, 12:31:01 PM
+    Author     : Jose Rodriguez
+*/
+#text-win{
+    -fx-font-size: 20pt;
+    -fx-font-family: "Tahoma"; 
+    -fx-underline: true;
+}
+#score-win{
+    -fx-font-size: 20pt;
+    -fx-font-family: "Tahoma"; 
+}
+#score{
+    -fx-font-size: 20pt;
+    -fx-font-family: "Tahoma"; 
+}
+#win-stack{
+    -fx-alignment:top-center;
+}
+.stack-pane{
+    -fx-background-image: url(http://images4.wikia.nocookie.net/__cb20070822104212/unmario/images/a/a0/Background.PNG);
+    -fx-background-size: 200 200;
+    /*-fx-background-image: url(../images/win/background.png);*/
+}
+.border-pane{
+    -fx-background-image: url(http://img09.deviantart.net/d017/i/2012/190/b/7/game_background_design_by_dizcreator-d56kuxn.jpg);
+    -fx-background-size: 700 500;
+    
+}
+#center-game-pane{
+    -fx-background-image: url(http://i.stack.imgur.com/FbIiv.png);
+    -fx-background-size: 600 290;
+    
+}
+#player-pane{
+    -fx-border-width:7px;
+    -fx-border-color:#6495ed;
+    -fx-background-color: white;
+    
+}
+#computer-pane{
+    -fx-border-width:7px;
+    -fx-border-color:#6495ed;
+    -fx-background-color: white;
+    
+}
+/*#select-player-text{
+    -fx-font-family: "cursive";
+    -fx-font-smoothing-type:"lcd";
+    -fx-font-size:16pt;
+}*/
+/*This section is for the radio buttons*/
+#computer-select{
+    -fx-border-width:10px;
+    -fx-border-color:#6495ed;
+    -fx-background-color: white;
+}
+#player-select{
+    -fx-border-width:10px;
+    -fx-border-color:#008b8b;
+    -fx-background-color: white;
+}
+#random-select{
+    -fx-border-width:10px;
+    -fx-border-color:#2f4f4f;
+    -fx-background-color: white;
+}
+#text-select{
+    -fx-border-width:10px;
+    -fx-border-color:#8b0000;
+    -fx-background-color: white;
+    -fx-font-family: "cursive";
+    -fx-font-smoothing-type:"lcd";
+    -fx-font-size:16pt;
+}
+#green {
+    -fx-background-color: gold;
+    -fx-background-radius: 6, 5;
+    -fx-background-insets: 0, 1;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
+    -fx-text-fill: #395306;
+}
+#green:hover {
+    -fx-background-color:
+        #909090,
+        #FFFFFF;
+}

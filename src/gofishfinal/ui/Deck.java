@@ -5,6 +5,7 @@
  */
 package gofishfinal.ui;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -12,7 +13,7 @@ import java.util.ListIterator;
  *
  * @author Jose
  */
-public class Deck {
+public class Deck implements Serializable{
     public static int DECKS_MADE = 0;
     private static ArrayList<Card> deck;
     private String[] suitOptions = {"club", "diamond", "heart", "spade"};

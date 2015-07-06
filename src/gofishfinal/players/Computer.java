@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package gofishfinal.players;
 
 /**
@@ -10,7 +6,6 @@ package gofishfinal.players;
  * @author Joseph
  */
 public class Computer extends Player{
-    private static String pick = null;
     public Computer(){
         
     }
@@ -24,7 +19,6 @@ public class Computer extends Player{
     public String makeMove(){
         //(char)('a' + Math.random() * ('z'-'a' + 1)
         //char from a -z randomly
-
         return super.getHand().get((int)(Math.random()*super.getHand().size())).getRank();
     }
 //    /**

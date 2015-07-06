@@ -6,8 +6,8 @@
 package gofishfinal.main;
 
 import gofishfinal.ui.GoFishGUI;
+import java.io.File;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -24,6 +24,7 @@ public class Main extends Application {
         GoFishGUI gui = new GoFishGUI(primaryStage);
         BorderPane pane = gui.getMainPane();
         Scene scene = new Scene(pane,width,height);
+        scene.getStylesheets().add(new File("data/goFishStyle.css").toURI().toString());
         primaryStage.setTitle(title);
         primaryStage.setScene(scene);
         primaryStage.show();
