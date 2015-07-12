@@ -9,9 +9,13 @@ import gofishfinal.players.Computer;
 import gofishfinal.players.Human;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,7 +24,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -36,6 +39,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 
 /**
  *
@@ -55,10 +59,12 @@ public class GoFishGUI {
     private HBox topAbout;
     private BorderPane playerSelectionPane;
     private BorderPane gamePane;
-    private BorderPane mainGamePane;
+    private Pane mainGamePane;
     private StackPane deckPane;
-    private StackPane humanPane;
-    private StackPane computerPane;
+//    private StackPane humanPane;
+    private HBox humanPane;
+//    private StackPane computerPane;
+    private HBox computerPane;
     private Pane centerGamePane;
     //buttons
     private Button about;
@@ -89,14 +95,16 @@ public class GoFishGUI {
     private MenuItem exit;
     private MenuItem save;
     private MenuItem load;
+    private boolean gameGoing;
+   
     //game play sources
     private String cardsPath = "images/cards/";
     //players
     private Human human;
     private Computer computer;
-    private ArrayList<Card> deck;
-    private ArrayList<ImageView> computerImageContainer = new ArrayList<ImageView>();
-    private ArrayList<ImageView> humanImageContainer = new ArrayList<ImageView>();
+    private List<Card> deck;
+    private List<ImageView> computerImageContainer = new ArrayList<>();
+    private List<ImageView> humanImageContainer = new ArrayList<>();
     //labels for game
     private Label computerLabel;
     private Label humanLabel;
@@ -265,9 +273,11 @@ public class GoFishGUI {
         //give action to the buttons
         System.out.println(group.getSelectedToggle().getUserData().toString());
         goButton.setOnMouseClicked(e->{
+            updateDisplay();
             System.out.println(group.getSelectedToggle().getUserData().toString() + " starts");
             eventHandler.whoStarts(group.getSelectedToggle().getUserData().toString());//TODO WHO STARTS?
             eventHandler.respondToSwitchScreenRequest(ScreenState.GAME_SCREEN);
+            gameGoing =true;
         });
         mainPane.setCenter(playerSelectionPane);
     }
@@ -302,8 +312,10 @@ public class GoFishGUI {
         computer = new Computer("COMPUTER", 7);
         //init pane and menu bar
         deckPane = new StackPane();
-        humanPane = new StackPane();
-        computerPane = new StackPane();
+//        humanPane = new StackPane();
+        humanPane = new HBox();
+//        computerPane = new StackPane();
+        computerPane = new HBox();
         mainGamePane = new BorderPane();
         centerGamePane = new Pane();
         gamePane = new BorderPane();
@@ -319,18 +331,32 @@ public class GoFishGUI {
         updateLabelLocation();
         centerGamePane.getChildren().addAll(computerLabel, humanLabel);
         //put the background and colors
-        centerGamePane.setId("center-game-pane");
-        humanPane.setId("player-pane");
-        computerPane.setId("computer-pane");
         //add it to the bar
         gameMenuBar.getMenus().add(gameMenu);
         gameMenu.getItems().addAll(returnToSplashScreen,
                 resetGame, load, save, exit);
         //for the center of the game screen
-        mainGamePane.setTop(computerPane);
-        mainGamePane.setBottom(humanPane);
-        mainGamePane.setLeft(deckPane);
-        mainGamePane.setCenter(centerGamePane);
+        //TODO here is where i modified for the pane
+        centerGamePane.setPrefSize(300, 300);
+        centerGamePane.setTranslateX(80);
+        centerGamePane.setTranslateY(80);
+        humanPane.setTranslateX(160);
+        humanPane.setTranslateY(height-140);
+        computerPane.setTranslateX(80);
+        deckPane.setTranslateX(35);
+        deckPane.setTranslateY(35);
+        centerGamePane.setStyle("-fx-border-color: #ff0000");
+        mainGamePane.getChildren().add(computerPane);
+        mainGamePane.getChildren().add(humanPane);
+        mainGamePane.getChildren().add(deckPane);
+        mainGamePane.getChildren().add(centerGamePane);
+//        centerGamePane.setId("center-game-pane");
+        humanPane.setId("player-pane");
+//        computerPane.setId("computer-pane");
+//        mainGamePane.setTop(computerPane);
+//        mainGamePane.setBottom(humanPane);
+//        mainGamePane.setLeft(deckPane);
+//        mainGamePane.setCenter(centerGamePane);
         gamePane.setTop(gameMenuBar);
         gamePane.setCenter(mainGamePane);
         //menu actions
@@ -340,7 +366,6 @@ public class GoFishGUI {
         exit.setOnAction(e -> {
             eventHandler.respondToSwitchScreenRequest(ScreenState.EXIT_REQUEST);
         });
-        updateDisplay();
         mainPane.setCenter(gamePane);
     }
 //--------------------Elements of display----------------------------------------
@@ -365,7 +390,6 @@ public class GoFishGUI {
 //            Image img = new Image(new File(cardsPath + deck.get(i).getImageName()).toURI().toString());
             Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
-
             tets.translateYProperty().set(i * 6);
             tets.setFitWidth(70);
             tets.setFitHeight(90);
@@ -379,40 +403,49 @@ public class GoFishGUI {
     public void updateComputerDisplay() {
         computerPane.getChildren().clear();
         computerImageContainer.clear();
-        computerPane.setAlignment(Pos.CENTER_LEFT);
+//        computerPane.setAlignment(Pos.CENTER_LEFT);
+//            computerPane.setAlignment(Pos.CENTER);
         computerPane.setTranslateX(75);
         for (int i = 0; i < computer.getHand().size(); i++) {
 //            Image img = new Image(new File(cardsPath + computer.getHand().get(i).getImageName()).toURI().toString());
             Image img = new Image(new File(cardsPath + "back.jpg").toURI().toString());//back ^^front
             ImageView tets = new ImageView(img);
-            tets.translateXProperty().set(i * ((width - (i * 10)) / ((computer.getHand().size()))));
+//            tets.translateXProperty().set(i * ((width - (i * 10)) / ((computer.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
             tets.setId(computer.getHand().get(i).getRank());
+            
+            if(!gameGoing){
+            animateCards(tets,500*i+1,140,200, -140,-200);
+            }
             computerImageContainer.add(tets);
 
 //R27587
             computerPane.getChildren().add(tets);
+            HBox.setMargin(tets, new Insets(0,-2*computer.getHand().size(),0,0));
         }
     }
 
     public void updateHumanDisplay() {
         humanPane.getChildren().clear();
         humanImageContainer.clear();
-
-        humanPane.setAlignment(Pos.CENTER_LEFT);
+//        humanPane.setAlignment(Pos.CENTER_LEFT);
         humanPane.setTranslateX(75);
         for (int i = 0; i < human.getHand().size(); i++) {
             Image img = new Image(new File(cardsPath + human.getHand().get(i).getImageName()).toURI().toString());
             ImageView tets = new ImageView(img);
-            tets.translateXProperty().set(i * ((width - (i * 10)) / ((human.getHand().size()))));
+//            tets.translateXProperty().set(i * ((width - (i * 10)) / ((human.getHand().size()))));
             tets.setFitWidth(70);
             tets.setFitHeight(90);
             Tooltip.install(tets, new Tooltip("Pick " + human.getHand().get(i).getRank()));
             tets.setId(human.getHand().get(i).getRank());
+            if(!gameGoing){
+            animateCards(tets,500*i+1,140,-200, -140,200);
+            }
+//            System.out.print(tets.getId() + " ");
             humanPane.getChildren().add(tets);
-            System.out.print(tets.getId() + " ");
             humanImageContainer.add(tets);
+            HBox.setMargin(tets, new Insets(0,-2*human.getHand().size(),0,0));
         }
     }
     /**
@@ -438,6 +471,31 @@ public class GoFishGUI {
             System.out.println("The deck is empty");
             //TODO Add that it shows for player or computer that they ran out of cards
         }
+    }
+    /**
+     * To animate the card movement
+     * @param card
+     * @param duration
+     * @param startAtx
+     * @param startAty
+     * @return 
+     */
+    private ParallelTransition animateCards(ImageView card, int duration, int startAtx, int startAty, float transitionStartx, float transitionStarty) {
+        card.setTranslateX(startAtx);
+        card.setTranslateY(startAty);
+        FadeTransition ft = new FadeTransition(Duration.millis(duration), card);
+        ft.setFromValue(0.0);
+        ft.setToValue(1.0);
+        ScaleTransition st = new ScaleTransition(Duration.millis(duration), card);
+        st.setByY(.0f);
+        st.setByX(.0f);
+        TranslateTransition tt = new TranslateTransition(Duration.millis(duration), card);
+        tt.setByX(transitionStartx);//set this to the opposite of where they start at
+        tt.setByY(transitionStarty);//set this to the opposite of where it start too
+        ParallelTransition pt = new ParallelTransition(card, ft, st, tt);
+        pt.delayProperty().setValue(Duration.millis(duration));
+        pt.play();
+        return pt;
     }
 //-----------------------------------end elements of display------------------------
 //-------------------------player and computer logic--------------------------------
@@ -482,7 +540,7 @@ public class GoFishGUI {
 
                         deckPane.setDisable(false);
                         //IF FOR THE DECK PART ONCE HE HAS TO CLICK ON IT
-                        deckPane.setOnMouseClicked(deck -> {
+                        deckPane.setOnMouseClicked(eck -> {
                             human.getCardFromDeck();//gets card from deck
                             if (human.hasMatchingFour()) {
 //                                chekc if player has 4+increaes score
@@ -496,6 +554,7 @@ public class GoFishGUI {
                             }
                             System.out.println(human.getRankOfDeckCard().equals(humanPick) + " Human pick : " + humanPick + " rank from deck " + human.getRankOfDeckCard());
                             if (human.getRankOfDeckCard().equals(humanPick)) {
+                                humanLabel.setText("Lucky the card you got from the deck was the same as guessed go again.");
                                 updateDisplay();
                                 deckPane.setDisable(true);
                                 processPlayerMove();
@@ -696,8 +755,13 @@ public class GoFishGUI {
                 mainPane.setCenter(aboutPane);
                 break;
             case PLAYER_SELECT:
+                if(!gameGoing){
                 mainPane.getChildren().clear();
                 mainPane.setCenter(playerSelectionPane);
+                }else{
+                mainPane.getChildren().clear();
+                mainPane.setCenter(gamePane);
+                }
                 break;
             case GAME_SCREEN:
                 mainPane.getChildren().clear();

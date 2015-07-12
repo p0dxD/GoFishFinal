@@ -10,7 +10,7 @@ package gofishfinal.ui;
  * @author Jose
  */
 public enum ScreenState {
-    SPLASH_SCREEN, ABOUT_SCREEN,PLAYER_SELECT, GAME_SCREEN , EXIT_REQUEST
+    SPLASH_SCREEN, ABOUT_SCREEN,PLAYER_SELECT,GAME_SCREEN , EXIT_REQUEST
     
 }
 
