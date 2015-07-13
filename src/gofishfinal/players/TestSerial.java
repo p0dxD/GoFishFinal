@@ -42,20 +42,20 @@ public class TestSerial extends Application {
         primaryStage.show();
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
     public void load() throws ClassNotFoundException{
         try{
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("data/data.go"));
-            Player player = (Player)in.readObject(); 
-            String size = player.getHand().size()+"";
-            int score = player.getScore();
-            System.out.println("Size in saved file "+size+" score "+ score);
-            in.close();
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("data/data.go"))) {
+                Player player = (Player)in.readObject();
+                String size = player.getHand().size()+"";
+                int score = player.getScore();
+                System.out.println("Size in saved file "+size+" score "+ score);
+            }
         }catch(IOException e){
             e.printStackTrace();
             System.out.println("Error with writing data");
@@ -63,9 +63,9 @@ public class TestSerial extends Application {
     }
     public void save(){
         try{
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("data/data.go"));
-            out.writeObject(human);
-            out.close();
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("data/data.go"))) {
+                out.writeObject(human);
+            }
         }catch(IOException e){
             e.printStackTrace();
             System.out.println("Error with writing data");

@@ -104,12 +104,12 @@ public class PlayerSelection extends Application {
         System.out.println(group.getSelectedToggle().getUserData().toString());
         });
     }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
+//
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
 
 }

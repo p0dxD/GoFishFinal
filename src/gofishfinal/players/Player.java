@@ -6,18 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-//import java.util.Timer;
-//import java.util.TimerTask;
-//import javafx.application.Platform;
-//import javafx.scene.control.Tooltip;
-//import javafx.scene.paint.Color;
-//import javafx.scene.shape.Circle;
-//import javafx.scene.shape.StrokeType;
-//import javafx.scene.text.Font;
-//import javafx.scene.text.Text;
-//import javafx.scene.text.TextBoundsType;
-//import javafx.stage.Popup;
-//import javafx.stage.Stage;
+
 
 /**
  *
@@ -35,8 +24,7 @@ public class Player implements Comparable<Player>, Serializable{
     private String nameOfCardObtainedFromDeck = null;
     private int score = 0;
     private boolean isTurn;
-//    private final Popup popup = new Popup();
-//    private Timer timer = new Timer();
+
     private boolean containsIt;
     public Player() {
         this("");
@@ -213,52 +201,7 @@ public class Player implements Comparable<Player>, Serializable{
             System.out.println("Not its turn");
         }
     }
-//------------------------Experimental--------------------
-//    public void showPopup(Stage stage,int width,int height){
-//        final Circle circle = new Circle(50);
-//        final Text text = createText(); 
-//        circle.setStroke(Color.FORESTGREEN);
-//        circle.setStrokeWidth(10);
-//        circle.setStrokeType(StrokeType.INSIDE);
-//        circle.setFill(Color.AZURE);
-//        circle.relocate(0, 0);
-//        Tooltip.install(circle, new Tooltip("Click here to dismiss"));
-//        
-//        popup.setX(width-50);
-//        popup.setY((height+90)/2);
-//        popup.getContent().addAll(circle,text);
-//        popup.show(stage);
-//        circle.setOnMouseClicked(e->{
-//            popup.hide();
-//        });
-//    }
-//    private void centerText(Text text) {
-//        double W = text.getBoundsInLocal().getWidth();
-//        double H = text.getBoundsInLocal().getHeight();
-//        text.relocate(50 -W / 2, 50 - H / 2);//150 is radius
-//    }
-//    private Text createText() {
-//        final Text text = new Text(name+"\n Scored");
-//        text.setFont(new Font(12));
-//        text.setBoundsType(TextBoundsType.VISUAL);
-//        centerText(text);
-//        return text;
-//           
-//    }
-//        public void closePopup(){
-//                timer.schedule(new TimerTask() {
-//
-//                    @Override
-//                    public void run() {
-//                        Platform.runLater(() -> {
-//                        popup.hide();
-//                        });
-//                    }
-//                    
-//                },2000);
-//                
-//    }
-//-----------------------------------------------------
+
     /**
      * To compare the scores see who wins
      * @param t

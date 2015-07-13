@@ -7,7 +7,7 @@ package gofishfinal.ui;
 
 /**
  *
- * @author Joseph
+ * @author Jose
  */
 public class EventHandlerGoFish {
     private GoFishGUI ui;
@@ -19,14 +19,18 @@ public class EventHandlerGoFish {
         ui.changeSpace(state);
     }
     public void whoStarts(String whoseTurn){
-        if(whoseTurn.equals("human")){
+        if(whoseTurn.equalsIgnoreCase("human")){
             ui.getHuman().setIsTurn(true);
             ui.processPlayerMove();
             
+        }else if("Random".equalsIgnoreCase(whoseTurn)){
+            whoStarts(randomStart());
         }else{
             ui.getComputer().setIsTurn(true);
             ui.processComputerTurn();
         }
     }
-    
+    public String randomStart(){
+        return ((int) ((Math.random()) * 2)==1)?"Human":"Computer";
+    }
 }
